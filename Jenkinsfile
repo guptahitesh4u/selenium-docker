@@ -14,7 +14,7 @@ pipeline{
         stage('Build docker Image'){
              steps{
                 echo " starting with bulding selenium image for the code"
-                bat "docker build -t=guptahitesh4u/selenium"
+                bat "docker build -t=guptahitesh4u/selenium ./"
                 echo "building image completed"
              }
         }
