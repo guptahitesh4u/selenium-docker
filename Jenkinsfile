@@ -1,41 +1,35 @@
 
 pipeline{
-
-    agent any
+    agent none
 
     stages{
         stage('Build Jar File'){
+            agent{
+                docker{
+                    image maven:eclipse-temurin
+                }
+            }
             steps{
                 echo "building jar file from the source code"
-                bat "mvn clean package -DskipTests"
+                sh "mvn clean package -DskipTests"
                 echo "jar files building completed now";
              }
         }
         stage('Build docker Image'){
              steps{
-                echo " starting with bulding selenium image for the code"
-                bat "docker build -t=guptahitesh4u/selenium"
-                echo "building image completed"
+                script{
+                app=docker.build('guptahitesh4u/selenium')
+                }
              }
         }
         stage('Push the docker image'){
-            environment{
-                DOCKER_HUB=credentials('dockerhub-creds')
-            }
              steps{
-                            echo " pushing the docker image"
-
-                            bat 'docker login -u %DOCKER_HUB_USR% -p %DOCKER_HUB_PSW%'
-                            bat "docker push guptahitesh4u/selenium"
-                            echo "image pushed"
-             }
-        }
-
-    }
-    post{
-        always{
-            bat "docker logout"
+                script{
+                            docker.withRegistry('','dockerhub-creds'){
+                            app.push("latest")
+                            }
+                }
+            }
         }
     }
-
 }
